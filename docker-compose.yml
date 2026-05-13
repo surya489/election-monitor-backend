@@ -1,0 +1,46 @@
+services:
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: election_monitor
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - election-monitor-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d election_monitor"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@database:5432/election_monitor?schema=public
+      PORT: 5000
+      CLIENT_URL: http://localhost:3000
+      JWT_SECRET: change-this-secret
+      ADMIN_EMAIL: admin@voteflow.local
+      ADMIN_PASSWORD: admin123
+    ports:
+      - "5000:5000"
+    depends_on:
+      database:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ../election-monitor
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:5000
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:5000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  election-monitor-data:
