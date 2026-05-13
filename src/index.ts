@@ -5,6 +5,7 @@ import http from "http";
 import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
 import { authRouter } from "./routes/auth.js";
+import { connectDatabase } from "./db.js";
 import { electionRouter } from "./routes/election.js";
 import { getElectionResults } from "./services/electionService.js";
 
@@ -56,12 +57,29 @@ app.use(
         _next: express.NextFunction
     ) => {
         console.error(error);
+
+        if (error.name === "MongooseServerSelectionError") {
+            return res.status(503).json({
+                message:
+                    "Database is not reachable. Start MongoDB and run the seed command.",
+            });
+        }
+
         res.status(500).json({ message: "Something went wrong" });
     }
 );
 
 const PORT = process.env.PORT || 5000;
 
-server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+connectDatabase()
+    .then(() => {
+        console.log("MongoDB connected");
+    })
+    .catch((error) => {
+        console.error("MongoDB connection failed:", error.message);
+    })
+    .finally(() => {
+        server.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        });
+    });

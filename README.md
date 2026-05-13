@@ -1,6 +1,6 @@
 # VoteFlow Backend
 
-Express, Socket.IO, Prisma, and PostgreSQL backend for the real-time election polling assignment.
+Express, Socket.IO, Mongoose, and MongoDB backend for the real-time election polling assignment.
 
 ## Features
 
@@ -8,7 +8,7 @@ Express, Socket.IO, Prisma, and PostgreSQL backend for the real-time election po
 - One vote per browser session by storing a unique session id with each vote.
 - JWT-protected admin results endpoint.
 - Socket.IO broadcasts live result updates after every accepted vote.
-- Docker Compose setup for PostgreSQL, backend, and the sibling Next.js frontend.
+- Docker Compose setup for MongoDB, backend, and the sibling Next.js frontend.
 
 ## Default Admin
 
@@ -31,10 +31,9 @@ Change these values in `.env` or `docker-compose.yml` before sharing a productio
    cp .env.example .env
    ```
 
-3. Start PostgreSQL locally, then sync and seed the database:
+3. Start MongoDB locally, then seed the database:
 
    ```bash
-   npm run db:push
    npm run db:seed
    ```
 
@@ -63,17 +62,16 @@ docker compose up --build
 
 This starts:
 
-- PostgreSQL on `localhost:5432`
+- MongoDB on `localhost:27017`
 - Backend API on `localhost:5000`
 - Frontend app from `../election-monitor` on `localhost:3000`
 
-The backend container runs `prisma db push` and the seed script before starting the API.
+The backend container runs the MongoDB seed script before starting the API.
 
 ## Scripts
 
 - `npm run dev` starts the TypeScript development server.
 - `npm run build` compiles TypeScript to `dist`.
 - `npm start` runs the compiled server.
-- `npm run db:push` syncs the Prisma schema to the database.
 - `npm run db:seed` creates the default admin and nominees.
 - `npm test` type-checks the backend.

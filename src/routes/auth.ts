@@ -1,7 +1,7 @@
 import { Router } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { prisma } from "../prisma.js";
+import { Admin } from "../models/Admin.js";
 
 export const authRouter = Router();
 
@@ -16,7 +16,7 @@ authRouter.post("/login", async (req, res, next) => {
       return res.status(400).json({ message: "Email and password are required" });
     }
 
-    const admin = await prisma.admin.findUnique({ where: { email } });
+    const admin = await Admin.findOne({ email: email.toLowerCase() });
     const isValid =
       admin && (await bcrypt.compare(password, admin.passwordHash));
 
@@ -25,7 +25,7 @@ authRouter.post("/login", async (req, res, next) => {
     }
 
     const token = jwt.sign(
-      { sub: admin.id, email: admin.email, role: "admin" },
+      { sub: admin._id.toString(), email: admin.email, role: "admin" },
       process.env.JWT_SECRET ?? "dev-secret",
       { expiresIn: "8h" }
     );
@@ -33,7 +33,7 @@ authRouter.post("/login", async (req, res, next) => {
     return res.json({
       token,
       admin: {
-        id: admin.id,
+        id: admin._id.toString(),
         email: admin.email,
         name: admin.name,
       },
