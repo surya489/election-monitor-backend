@@ -16,4 +16,4 @@ COPY package*.json ./
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 EXPOSE 5000
-CMD ["sh", "-c", "npm run db:seed && npm start"]
+CMD ["sh", "-c", "node dist/seed.js && npm start"]
