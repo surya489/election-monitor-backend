@@ -6,8 +6,12 @@ export type ElectionResults = {
   totalVotes: number;
   nominees: Array<{
     id: string;
+    abbreviation: string;
     name: string;
+    fullName: string;
     party: string;
+    leader: string;
+    symbol: string;
     position: number;
     voteCount: number;
   }>;
@@ -37,15 +41,19 @@ export async function getElectionResults(): Promise<ElectionResults> {
     totalVotes,
     nominees: nominees.map((nominee) => ({
       id: nominee._id.toString(),
+      abbreviation: nominee.abbreviation,
       name: nominee.name,
+      fullName: nominee.fullName,
       party: nominee.party,
+      leader: nominee.leader,
+      symbol: nominee.symbol,
       position: nominee.position,
       voteCount: countByNomineeId.get(nominee._id.toString()) ?? 0,
     })),
   };
 }
 
-export async function castVote(sessionId: string, nomineeId: string) {
+export async function castVote(userId: string, nomineeId: string) {
   if (!Types.ObjectId.isValid(nomineeId)) {
     throw new Error("NOMINEE_NOT_FOUND");
   }
@@ -58,14 +66,21 @@ export async function castVote(sessionId: string, nomineeId: string) {
 
   try {
     await Vote.create({
-      sessionId,
+      sessionId: userId,
+      userId: new Types.ObjectId(userId),
       nomineeId: new Types.ObjectId(nomineeId),
     });
   } catch (error) {
     if (typeof error === "object" && error !== null && "code" in error && error.code === 11000) {
-      throw new Error("SESSION_ALREADY_VOTED");
+      throw new Error("USER_ALREADY_VOTED");
     }
 
     throw error;
   }
+}
+
+export async function getUserVote(userId: string) {
+  const vote = await Vote.findOne({ userId }).select("nomineeId").lean();
+
+  return vote?.nomineeId.toString() ?? null;
 }

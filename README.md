@@ -4,8 +4,8 @@ Express, Socket.IO, Mongoose, and MongoDB backend for the real-time election pol
 
 ## Features
 
-- Seeded admin user and five default nominees.
-- One vote per browser session by storing a unique session id with each vote.
+- Seeded admin user and Tamil Nadu party ballot data.
+- Voter signup/login with one vote enforced per user account.
 - JWT-protected admin results endpoint.
 - Socket.IO broadcasts live result updates after every accepted vote.
 - Docker Compose setup for MongoDB, backend, and the sibling Next.js frontend.
@@ -48,8 +48,12 @@ The API runs on `http://localhost:5000`.
 ## API Routes
 
 - `POST /api/auth/login` authenticates the default admin.
-- `GET /api/nominees` returns the public nominee list.
-- `POST /api/votes` records a vote for `{ nomineeId, sessionId }`.
+- `POST /api/auth/signup` creates a voter account.
+- `POST /api/auth/user-login` authenticates a voter account.
+- `GET /api/auth/me` returns the current voter.
+- `GET /api/nominees` returns the party ballot list.
+- `POST /api/votes` records one authenticated user vote for `{ nomineeId }`.
+- `GET /api/votes/me` returns the current user's vote.
 - `GET /api/results` returns live totals and requires `Authorization: Bearer <token>`.
 
 ## Docker Setup
@@ -73,5 +77,5 @@ The backend container runs the MongoDB seed script before starting the API.
 - `npm run dev` starts the TypeScript development server.
 - `npm run build` compiles TypeScript to `dist`.
 - `npm start` runs the compiled server.
-- `npm run db:seed` creates the default admin and nominees.
+- `npm run db:seed` creates the default admin and party ballot data.
 - `npm test` type-checks the backend.

@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken";
 import { authRouter } from "./routes/auth.js";
 import { connectDatabase } from "./db.js";
 import { electionRouter } from "./routes/election.js";
+import { setSocketServer } from "./realtime.js";
 import { getElectionResults } from "./services/electionService.js";
 
 dotenv.config();
@@ -34,6 +35,7 @@ app.use(express.json());
 app.get("/", (_req, res) => {
     res.send("VoteFlow API Running...");
 });
+setSocketServer(io);
 
 app.use("/api/auth", authRouter);
 app.use("/api", electionRouter);
@@ -65,7 +67,11 @@ app.use(
             });
         }
 
-        res.status(500).json({ message: "Something went wrong" });
+        res.status(500).json({
+            message: "Something went wrong",
+            error:
+                process.env.NODE_ENV === "production" ? undefined : error.message,
+        });
     }
 );
 
@@ -74,12 +80,11 @@ const PORT = process.env.PORT || 5000;
 connectDatabase()
     .then(() => {
         console.log("MongoDB connected");
-    })
-    .catch((error) => {
-        console.error("MongoDB connection failed:", error.message);
-    })
-    .finally(() => {
         server.listen(PORT, () => {
             console.log(`Server running on port ${PORT}`);
         });
+    })
+    .catch((error) => {
+        console.error("MongoDB connection failed:", error.message);
+        process.exit(1);
     });

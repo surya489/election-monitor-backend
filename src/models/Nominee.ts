@@ -1,8 +1,12 @@
 import { Schema, model } from "mongoose";
 
 export type NomineeDocument = {
+    abbreviation: string;
     name: string;
+    fullName: string;
     party: string;
+    leader: string;
+    symbol: string;
     position: number;
     createdAt: Date;
     updatedAt: Date;
@@ -10,7 +14,18 @@ export type NomineeDocument = {
 
 const nomineeSchema = new Schema<NomineeDocument>(
     {
+        abbreviation: {
+            type: String,
+            required: true,
+            unique: true,
+            trim: true,
+        },
         name: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        fullName: {
             type: String,
             required: true,
             trim: true,
@@ -20,12 +35,20 @@ const nomineeSchema = new Schema<NomineeDocument>(
             required: true,
             trim: true,
         },
+        leader: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        symbol: {
+            type: String,
+            required: true,
+            trim: true,
+        },
         position: {
             type: Number,
             required: true,
-            unique: true,
             min: 1,
-            max: 5,
         },
     },
     {
@@ -33,5 +56,7 @@ const nomineeSchema = new Schema<NomineeDocument>(
         bufferCommands: false,
     }
 );
+
+nomineeSchema.index({ position: 1 });
 
 export const Nominee = model<NomineeDocument>("Nominee", nomineeSchema);
