@@ -2,6 +2,13 @@ import { Types } from "mongoose";
 import { Nominee } from "../models/Nominee.js";
 import { Vote } from "../models/Vote.js";
 
+const BALLOT_ORDER = ["DMK", "ADMK", "TVK", "NTK", "PMK"];
+const BALLOT_QUERY_ABBREVIATIONS = [...BALLOT_ORDER, "AIADMK"];
+
+function canonicalAbbreviation(abbreviation: string) {
+  return abbreviation === "AIADMK" ? "ADMK" : abbreviation;
+}
+
 export type ElectionResults = {
   totalVotes: number;
   nominees: Array<{
@@ -18,7 +25,16 @@ export type ElectionResults = {
 };
 
 export async function getElectionResults(): Promise<ElectionResults> {
-  const nominees = await Nominee.find().sort({ position: 1 }).lean();
+  const storedNominees = await Nominee.find({
+    abbreviation: { $in: BALLOT_QUERY_ABBREVIATIONS },
+  })
+    .sort({ position: 1 })
+    .lean();
+  const nominees = BALLOT_ORDER.map((abbreviation) =>
+    storedNominees.find(
+      (nominee) => canonicalAbbreviation(nominee.abbreviation) === abbreviation
+    )
+  ).filter((nominee): nominee is NonNullable<typeof nominee> => Boolean(nominee));
   const voteCounts = await Vote.aggregate<{ _id: Types.ObjectId; count: number }>([
     {
       $group: {
@@ -39,15 +55,15 @@ export async function getElectionResults(): Promise<ElectionResults> {
 
   return {
     totalVotes,
-    nominees: nominees.map((nominee) => ({
+    nominees: nominees.map((nominee, index) => ({
       id: nominee._id.toString(),
-      abbreviation: nominee.abbreviation,
-      name: nominee.name,
+      abbreviation: canonicalAbbreviation(nominee.abbreviation),
+      name: canonicalAbbreviation(nominee.name),
       fullName: nominee.fullName,
       party: nominee.party,
       leader: nominee.leader,
       symbol: nominee.symbol,
-      position: nominee.position,
+      position: index + 1,
       voteCount: countByNomineeId.get(nominee._id.toString()) ?? 0,
     })),
   };
@@ -58,13 +74,18 @@ export async function castVote(userId: string, nomineeId: string) {
     throw new Error("NOMINEE_NOT_FOUND");
   }
 
-  const nominee = await Nominee.findById(nomineeId).select("_id").lean();
+  const nominee = await Nominee.findById(nomineeId).select("_id abbreviation").lean();
 
-  if (!nominee) {
+  if (
+    !nominee ||
+    !BALLOT_ORDER.includes(canonicalAbbreviation(nominee.abbreviation))
+  ) {
     throw new Error("NOMINEE_NOT_FOUND");
   }
 
   try {
+    // Vote.userId has a unique index, so the database enforces one accepted
+    // ballot per authenticated voter even if duplicate requests arrive quickly.
     await Vote.create({
       sessionId: userId,
       userId: new Types.ObjectId(userId),

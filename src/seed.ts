@@ -8,6 +8,7 @@ import { Vote } from "./models/Vote.js";
 
 dotenv.config();
 
+// Default ballot used when a fresh database is prepared for the poll.
 const nominees = [
     {
         abbreviation: "DMK",
@@ -37,31 +38,13 @@ const nominees = [
         position: 3,
     },
     {
-        abbreviation: "BJP Tamil Nadu",
-        name: "BJP Tamil Nadu",
-        fullName: "Bharatiya Janata Party",
-        party: "Bharatiya Janata Party",
-        leader: "K. Annamalai",
-        symbol: "Lotus",
-        position: 4,
-    },
-    {
-        abbreviation: "Congress",
-        name: "Congress",
-        fullName: "Indian National Congress",
-        party: "Indian National Congress",
-        leader: "K. Selvaperunthagai",
-        symbol: "Hand",
-        position: 5,
-    },
-    {
         abbreviation: "NTK",
         name: "NTK",
         fullName: "Naam Tamilar Katchi",
         party: "Naam Tamilar Katchi",
         leader: "Seeman",
         symbol: "Farmer",
-        position: 6,
+        position: 4,
     },
     {
         abbreviation: "PMK",
@@ -70,52 +53,7 @@ const nominees = [
         party: "Pattali Makkal Katchi",
         leader: "Anbumani Ramadoss",
         symbol: "Mango",
-        position: 7,
-    },
-    {
-        abbreviation: "VCK",
-        name: "VCK",
-        fullName: "Viduthalai Chiruthaigal Katchi",
-        party: "Viduthalai Chiruthaigal Katchi",
-        leader: "Thol. Thirumavalavan",
-        symbol: "Pot",
-        position: 8,
-    },
-    {
-        abbreviation: "AMMK",
-        name: "AMMK",
-        fullName: "Amma Makkal Munnettra Kazagam",
-        party: "Amma Makkal Munnettra Kazagam",
-        leader: "T. T. V. Dhinakaran",
-        symbol: "Pressure Cooker",
-        position: 9,
-    },
-    {
-        abbreviation: "DMDK",
-        name: "DMDK",
-        fullName: "Desiya Murpokku Dravida Kazhagam",
-        party: "Desiya Murpokku Dravida Kazhagam",
-        leader: "Premalatha Vijayakanth",
-        symbol: "Drum",
-        position: 10,
-    },
-    {
-        abbreviation: "MDMK",
-        name: "MDMK",
-        fullName: "Marumalarchi Dravida Munnetra Kazhagam",
-        party: "Marumalarchi Dravida Munnetra Kazhagam",
-        leader: "Vaiko",
-        symbol: "Top",
-        position: 11,
-    },
-    {
-        abbreviation: "MNM",
-        name: "MNM",
-        fullName: "Makkal Needhi Maiam",
-        party: "Makkal Needhi Maiam",
-        leader: "Kamal Haasan",
-        symbol: "Battery Torch",
-        position: 12,
+        position: 5,
     },
 ];
 

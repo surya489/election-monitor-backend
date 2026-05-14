@@ -1,10 +1,10 @@
 # VoteFlow Backend
 
-Express, Socket.IO, Mongoose, and MongoDB backend for the real-time election polling assignment.
+Express, Socket.IO, Mongoose, and MongoDB backend for the VoteFlow real-time election polling system.
 
 ## Features
 
-- Seeded admin user and Tamil Nadu party ballot data.
+- Seeded admin user and five default Tamil Nadu party nominees: DMK, ADMK, TVK, NTK, and PMK.
 - Voter signup/login with one vote enforced per user account.
 - JWT-protected admin results endpoint.
 - Socket.IO broadcasts live result updates after every accepted vote.
@@ -37,6 +37,8 @@ Change these values in `.env` or `docker-compose.yml` before sharing a productio
    npm run db:seed
    ```
 
+   The seed creates the default admin, resets existing votes, and loads five nominees.
+
 4. Start the API:
 
    ```bash
@@ -55,6 +57,15 @@ The API runs on `http://localhost:5000`.
 - `POST /api/votes` records one authenticated user vote for `{ nomineeId }`.
 - `GET /api/votes/me` returns the current user's vote.
 - `GET /api/results` returns live totals and requires `Authorization: Bearer <token>`.
+
+## Project Coverage
+
+- Audience users can sign up, sign in, and vote for one nominee.
+- The `Vote.userId` unique index enforces one accepted vote per voter account.
+- The admin user is seeded from `ADMIN_EMAIL` and `ADMIN_PASSWORD`.
+- Admin results are protected by JWT auth.
+- Socket.IO emits `results:update` after every accepted vote and sends a result snapshot when the admin dashboard connects.
+- The nominee seed contains five default nominees for a focused ballot.
 
 ## Docker Setup
 

@@ -44,6 +44,8 @@ io.on("connection", async (socket) => {
     const token = socket.handshake.auth.token;
 
     try {
+        // Admin dashboards connect with their JWT and receive the current
+        // result snapshot immediately, then future updates after each vote.
         jwt.verify(String(token), process.env.JWT_SECRET ?? "dev-secret");
         socket.emit("results:update", await getElectionResults());
     } catch {
