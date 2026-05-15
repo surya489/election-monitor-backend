@@ -65,6 +65,13 @@ ADMIN_EMAIL=admin@voteflow.local
 ADMIN_PASSWORD=admin123
 ```
 
+For a deployed backend, set `CLIENT_URL` to the deployed frontend origin. Do not
+include a path such as `/admin`:
+
+```env
+CLIENT_URL=https://election-monitor.vercel.app
+```
+
 ## Admin Credentials
 
 The admin account is created by the seed script.
@@ -354,6 +361,9 @@ This starts:
 - Frontend app from `../election-monitor` on `localhost:3000`
 
 The backend container runs the seed script before starting the API.
+
+In Docker production builds, the container runs the compiled seed file from
+`dist/seed.js`, then starts the compiled API from `dist/index.js`.
 
 ## Available Scripts
 
